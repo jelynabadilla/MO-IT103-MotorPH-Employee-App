@@ -416,9 +416,10 @@ public class MotorPH {
                 .collect(Collectors.groupingBy(
                         r -> r.getDate().get(WeekFields.ISO.weekOfMonth())
                 ));
-
+        System.out.println("----------------------------------------------" );
         System.out.println("ATTENDANCE RECORDS FOR " + employee.getLastName() + ", " + employee.getFirstName());
-
+        System.out.println("----------------------------------------------" );
+        
         if (weekChoice == 5) {
             weeklyRecords.entrySet().stream()
                     .sorted(Map.Entry.comparingByKey())
@@ -451,108 +452,6 @@ public class MotorPH {
                     record.getTimeIn(),
                     record.getTimeOut());
         }
-    }
-
-    /**
-     * Adds a new attendance record
-     */
-    private static void addAttendance(Scanner scanner, FileHandler fileHandler) {
-        printSectionHeader("ADD ATTENDANCE RECORD");
-        System.out.print("Employee ID: ");
-        String employeeId = scanner.nextLine();
-        System.out.print("Date (MM/DD/YYYY): ");
-        LocalDate date = LocalDate.parse(scanner.nextLine(), DateTimeFormatter.ofPattern("MM/dd/yyyy"));
-        System.out.print("Time In (HH:MM): ");
-        LocalTime timeIn = LocalTime.parse(scanner.nextLine());
-        System.out.print("Time Out (HH:MM): ");
-        LocalTime timeOut = LocalTime.parse(scanner.nextLine());
-        fileHandler.recordAttendance(employeeId, date, timeIn, timeOut);
-        System.out.println("\nAttendance record added successfully!");
-        printSectionFooter();
-    }
-
-    /**
-     * Updates an existing attendance record
-     */
-    private static void updateAttendance(Scanner scanner, FileHandler fileHandler) {
-        printSectionHeader("UPDATE ATTENDANCE RECORD");
-        System.out.print("Enter Employee ID: ");
-        String employeeId = scanner.nextLine();
-        System.out.print("Enter Date (MM/DD/YYYY): ");
-        LocalDate date = LocalDate.parse(scanner.nextLine(), DateTimeFormatter.ofPattern("MM/dd/yyyy"));
-        Attendance record = fileHandler.findAttendanceRecord(employeeId, date);
-
-        if (record == null) {
-            System.out.println("Attendance record not found!");
-            printSectionFooter();
-            return;
-        }
-
-        System.out.println("\nCurrent Attendance Record:");
-        System.out.println("Time In: " + record.getTimeIn());
-        System.out.println("Time Out: " + record.getTimeOut());
-
-        System.out.print("\nEnter new Time In (HH:MM): ");
-        record.setTimeIn(LocalTime.parse(scanner.nextLine()));
-        System.out.print("Enter new Time Out (HH:MM): ");
-        record.setTimeOut(LocalTime.parse(scanner.nextLine()));
-
-        List<Attendance> records = fileHandler.getAllAttendanceRecords();
-        records.removeIf(r -> r.getEmployeeId().equals(employeeId) && r.getDate().equals(date));
-        records.add(record);
-
-        try (PrintWriter writer = new PrintWriter(new FileWriter(fileHandler.getAttendanceFilePath()))) {
-            writer.println(FileHandler.ATTENDANCE_HEADER);
-            for (Attendance r : records) {
-                writer.printf("%s,%s,%s,%s,%s,%s\n",
-                        r.getEmployeeId(),
-                        "", "",
-                        "",
-                        r.getDate().format(DateTimeFormatter.ofPattern("MM/dd/yyyy")),
-                        r.getTimeIn(),
-                        r.getTimeOut());
-            }
-            System.out.println("\nAttendance record updated successfully!");
-        } catch (IOException e) {
-            System.out.println("Error updating attendance record: " + e.getMessage());
-        }
-        printSectionFooter();
-    }
-
-    /**
-     * Deletes an attendance record
-     */
-    private static void deleteAttendance(Scanner scanner, FileHandler fileHandler) {
-        printSectionHeader("DELETE ATTENDANCE RECORD");
-        System.out.print("Enter Employee ID: ");
-        String employeeId = scanner.nextLine();
-        System.out.print("Enter Date (MM/DD/YYYY): ");
-        LocalDate date = LocalDate.parse(scanner.nextLine(), DateTimeFormatter.ofPattern("MM/dd/yyyy"));
-
-        List<Attendance> records = fileHandler.getAllAttendanceRecords();
-        boolean removed = records.removeIf(r ->
-                r.getEmployeeId().equals(employeeId) && r.getDate().equals(date));
-
-        if (removed) {
-            try (PrintWriter writer = new PrintWriter(new FileWriter(fileHandler.getAttendanceFilePath()))) {
-                writer.println(FileHandler.ATTENDANCE_HEADER);
-                for (Attendance r : records) {
-                    writer.printf("%s,%s,%s,%s,%s,%s\n",
-                            r.getEmployeeId(),
-                            "",
-                            "",
-                            r.getDate().format(DateTimeFormatter.ofPattern("MM/dd/yyyy")),
-                            r.getTimeIn(),
-                            r.getTimeOut());
-                }
-                System.out.println("\nAttendance record deleted successfully!");
-            } catch (IOException e) {
-                System.out.println("Error deleting attendance record: " + e.getMessage());
-            }
-        } else {
-            System.out.println("\nAttendance record not found!");
-        }
-        printSectionFooter();
     }
 
     /**
