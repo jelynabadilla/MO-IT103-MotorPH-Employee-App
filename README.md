@@ -7,7 +7,6 @@
     * Store detailed employee information, including personal details, government IDs, and compensation data.
     * Generate employee reports.
 * **Attendance Management:**
-    * Record employee attendance (time in/out).
     * View attendance records by employee and date range.
 * **Payroll Calculation:**
     * Calculate regular and overtime pay.
