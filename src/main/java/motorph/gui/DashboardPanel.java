@@ -294,7 +294,7 @@ public class DashboardPanel extends javax.swing.JPanel {
         remindersTextArea.setColumns(20);
         remindersTextArea.setLineWrap(true);
         remindersTextArea.setRows(5);
-        remindersTextArea.setText("Important Reminders:\n-Payroll processing is every 15th and 30th.\n-Submit leave requests 3 days in advance.\n-Check company announcements regularly.");
+        remindersTextArea.setText("Important Reminders:\n-Payroll processing is every 15th and 30th.\n-Submit leave requests 3 days in advance.\n-Check company announcement regularly.");
         jScrollPane4.setViewportView(remindersTextArea);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
