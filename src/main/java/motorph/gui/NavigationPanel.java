@@ -3,11 +3,12 @@ package motorph.gui;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+
 public class NavigationPanel extends javax.swing.JPanel {
     private MainApplication mainApp;
 
     public NavigationPanel() {
-        initComponents(); 
+        initComponents();
     }
 
     public void setMainApp(MainApplication mainApp) {
@@ -30,7 +31,7 @@ public class NavigationPanel extends javax.swing.JPanel {
             }
         });
         
-         payrollButton.addActionListener(new ActionListener() {
+        payrollButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("payrollButton clicked."); 
@@ -51,15 +52,18 @@ public class NavigationPanel extends javax.swing.JPanel {
         });
     }
 
+    
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
+        jLabel5 = new javax.swing.JLabel();
         dashboardButton = new javax.swing.JButton();
         employeesButton = new javax.swing.JButton();
         payrollButton = new javax.swing.JButton();
         attendanceButton = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
 
         setPreferredSize(new java.awt.Dimension(160, 200));
 
@@ -67,10 +71,15 @@ public class NavigationPanel extends javax.swing.JPanel {
         jPanel1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
+        jLabel5.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jLabel5.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel5.setText("Menu");
+        jPanel1.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 170, -1, -1));
+
         dashboardButton.setBackground(new java.awt.Color(255, 255, 255));
         dashboardButton.setForeground(new java.awt.Color(0, 0, 0));
         dashboardButton.setText("Dashboard");
-        jPanel1.add(dashboardButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 160, 140, -1));
+        jPanel1.add(dashboardButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 200, 140, -1));
 
         employeesButton.setBackground(new java.awt.Color(255, 255, 255));
         employeesButton.setForeground(new java.awt.Color(0, 0, 0));
@@ -80,33 +89,29 @@ public class NavigationPanel extends javax.swing.JPanel {
                 employeesButtonActionPerformed(evt);
             }
         });
-        jPanel1.add(employeesButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 210, 140, -1));
+        jPanel1.add(employeesButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 250, 140, -1));
 
         payrollButton.setBackground(new java.awt.Color(255, 255, 255));
         payrollButton.setForeground(new java.awt.Color(0, 0, 0));
         payrollButton.setText("Payroll");
-        jPanel1.add(payrollButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 310, 140, -1));
+        jPanel1.add(payrollButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 350, 140, -1));
 
         attendanceButton.setBackground(new java.awt.Color(255, 255, 255));
         attendanceButton.setForeground(new java.awt.Color(0, 0, 0));
         attendanceButton.setText("Attendance");
-        jPanel1.add(attendanceButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 260, 140, -1));
+        jPanel1.add(attendanceButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 300, 140, -1));
 
         jPanel2.setBackground(new java.awt.Color(139, 0, 0));
         jPanel2.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        jPanel2.setMinimumSize(new java.awt.Dimension(150, 95));
+        jPanel2.setLayout(null);
 
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 156, Short.MAX_VALUE)
-        );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 136, Short.MAX_VALUE)
-        );
+        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/MotorPH Icon.png"))); // NOI18N
+        jPanel2.add(jLabel1);
+        jLabel1.setBounds(6, 50, 150, 80);
 
-        jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 160, 140));
+        jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 160, 150));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -116,7 +121,7 @@ public class NavigationPanel extends javax.swing.JPanel {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 600, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -129,6 +134,8 @@ public class NavigationPanel extends javax.swing.JPanel {
     private javax.swing.JButton attendanceButton;
     private javax.swing.JButton dashboardButton;
     private javax.swing.JButton employeesButton;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JButton payrollButton;

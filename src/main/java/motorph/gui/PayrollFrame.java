@@ -24,8 +24,6 @@ public class PayrollFrame extends JFrame {
 
     public PayrollFrame() {
         initComponents();
-        setBackground(new java.awt.Color(243, 243, 224));
-        jPanel2.setBackground(new java.awt.Color(243, 243, 224));
         fileHandler = new FileHandler();
         payrollCalculator = new PayrollCalculator(fileHandler);
 
@@ -288,9 +286,10 @@ public class PayrollFrame extends JFrame {
         jLabel6 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setBackground(new java.awt.Color(243, 243, 224));
+        setBackground(new java.awt.Color(255, 255, 255));
 
         jPanel2.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel2.setForeground(new java.awt.Color(255, 255, 255));
 
         payrollTitle.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         payrollTitle.setForeground(new java.awt.Color(24, 59, 78));
@@ -394,7 +393,7 @@ public class PayrollFrame extends JFrame {
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGap(260, 260, 260)
                         .addComponent(calculateButton)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 38, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 375, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -430,7 +429,7 @@ public class PayrollFrame extends JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 395, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(261, Short.MAX_VALUE))
+                .addContainerGap(57, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());

@@ -2,7 +2,7 @@ package motorph.gui;
 
 import java.awt.CardLayout;
 import javax.swing.JPanel;
-import java.awt.BorderLayout;
+
 
 public class MainApplication extends javax.swing.JFrame {
 
