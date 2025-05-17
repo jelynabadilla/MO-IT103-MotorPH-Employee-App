@@ -3,15 +3,9 @@ package motorph.gui;
 import motorph.Employee;
 import motorph.Attendance;
 import motorph.FileHandler;
-import motorph.PayrollCalculator; 
-import javax.swing.*; 
+import motorph.PayrollCalculator;  
 import javax.swing.table.DefaultTableModel;
 import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.stream.Collectors;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.Comparator;
 import java.time.format.DateTimeFormatter;
 
