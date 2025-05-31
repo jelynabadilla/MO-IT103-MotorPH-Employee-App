@@ -11,7 +11,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.*; 
+import java.util.*;
 
 
 public class FileHandler {
@@ -112,24 +112,24 @@ public class FileHandler {
             //Writes each employee's data to the CSV
             for (Employee emp : employees) {
                 String birthdayString;
-                Object rawBirthday = emp.getBirthday(); 
+                Object rawBirthday = emp.getBirthday();
                 if (rawBirthday instanceof LocalDate) {
                     birthdayString = ((LocalDate) rawBirthday).format(EMPLOYEE_BIRTHDAY_FORMATTER);
                 } else if (rawBirthday != null) {
-                    birthdayString = rawBirthday.toString(); 
+                    birthdayString = rawBirthday.toString();
                 } else {
-                    birthdayString = ""; 
+                    birthdayString = "";
                 }
 
                 writer.writeNext(new String[]{
-                    emp.getEmployeeId(), emp.getLastName(), emp.getFirstName(), birthdayString, 
+                    emp.getEmployeeId(), emp.getLastName(), emp.getFirstName(), birthdayString,
                     emp.getAddress(), emp.getPhoneNumber(), emp.getSssNumber(), emp.getPhilhealthNumber(),
                     emp.getTinNumber(), emp.getPagibigNumber(), emp.getStatus(), emp.getPosition(),
-                    emp.getSupervisor(), 
+                    emp.getSupervisor(),
                     String.valueOf(emp.getBasicSalary()), String.valueOf(emp.getRiceSubsidy()),
                     String.valueOf(emp.getPhoneAllowance()), String.valueOf(emp.getClothingAllowance()),
-                    String.valueOf(emp.getGrossRate()), 
-                    String.valueOf(emp.getHourlyRate()) 
+                    String.valueOf(emp.getGrossRate()),
+                    String.valueOf(emp.getHourlyRate())
                 });
             }
         } catch (IOException e) {
@@ -208,7 +208,7 @@ public class FileHandler {
         records.sort(Comparator.comparing(Attendance::getEmployeeId).thenComparing(Attendance::getDate));
         saveAllAttendanceRecords(records);
     }
-    
+
 
     public void recordAttendance(String employeeId, LocalDate date, LocalTime timeIn, LocalTime timeOut) {
         Attendance newAttendanceRecord = new Attendance(employeeId, date, timeIn, timeOut);
@@ -253,7 +253,7 @@ public class FileHandler {
     public Employee getEmployeeById(String employeeId) {
         // Make sure readEmployees() correctly uses the Map constructor or handles errors.
         List<Employee> employees = readEmployees();
-        if (employees == null) { // Should not happen if readEmployees returns new ArrayList on error
+        if (employees == null) { 
              return null;
         }
         return employees.stream()
@@ -302,9 +302,31 @@ public class FileHandler {
         return EMPLOYEE_FILE;
     }
 
- 
+
     public int getEmployeeCount() {
         List<Employee> employees = readEmployees();
         return employees != null ? employees.size() : 0;
+    }
+
+    public boolean updateEmployee(Employee updatedEmployee) {
+        try {
+            // Read all employees
+            List<Employee> employees = readEmployees(); // Corrected: was getAllEmployees()
+
+            // Find and update the specific employee
+            for (int i = 0; i < employees.size(); i++) {
+                if (employees.get(i).getEmployeeId().equals(updatedEmployee.getEmployeeId())) { // Corrected: was getEmployeeNumber()
+                    employees.set(i, updatedEmployee);
+                    break;
+                }
+            }
+
+            // Write all employees back to file
+            saveAllEmployees(employees); 
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }

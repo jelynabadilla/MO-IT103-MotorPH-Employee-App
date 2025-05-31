@@ -153,6 +153,7 @@ public class DashboardPanel extends javax.swing.JPanel {
         jPanel7.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 15)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(0, 0, 0));
         jLabel1.setText("Hello there! Ready to see what's new? Your dashboard has been updated with the latest information.");
 
         jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/wave.png"))); // NOI18N
@@ -269,6 +270,7 @@ public class DashboardPanel extends javax.swing.JPanel {
 
         employeeCountValueLabel.setBackground(new java.awt.Color(255, 255, 255));
         employeeCountValueLabel.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        employeeCountValueLabel.setForeground(new java.awt.Color(0, 0, 0));
         employeeCountValueLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         employeeCountValueLabel.setText("#");
 
@@ -299,7 +301,7 @@ public class DashboardPanel extends javax.swing.JPanel {
         remindersTextArea.setColumns(20);
         remindersTextArea.setLineWrap(true);
         remindersTextArea.setRows(5);
-        remindersTextArea.setText("Important Reminders:\n-Payroll processing is every 15th and 30th.\n-Submit leave requests 3 days in advance.\n-Check company announcements regularly.");
+        remindersTextArea.setText("Important Reminders:\n-Payroll processing is every 15th and 30th.\n-Submit leave requests 3 days in advance.\n-Check company announcement regularly.");
         jScrollPane4.setViewportView(remindersTextArea);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);

@@ -1,27 +1,94 @@
 package motorph.gui.admin;
 
 import motorph.Employee;
+import motorph.FileHandler;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.JOptionPane;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-
+/**
+ * A frame for displaying and editing employee details.
+ * Provides functionality to view, edit, and delete employee records.
+ */
 public class EmployeeDetailsFrame extends javax.swing.JFrame {
 
+    private FileHandler fileHandler;
+    private EmployeesPanel employeesPanel;
+    protected Employee currentEmployee;
 
-    // Constructor
+    /**
+     * Constructor with EmployeesPanel reference.
+     * @param employeesPanel The parent panel that manages employee data
+     */
+    public EmployeeDetailsFrame(EmployeesPanel employeesPanel) {
+        this.employeesPanel = employeesPanel;
+        fileHandler = new FileHandler();
+        initComponents();
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setMode(false); // Start in view mode
+        setupEditButtonAction();
+    }
+
+    /**
+     * Default constructor.
+     */
     public EmployeeDetailsFrame() {
         initComponents();
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setMode(false);
+        setupSaveButtonAction();
+        setupEditButtonAction();
+        setupDeleteButtonAction();
     }
 
-    // Fills the fields with employee data
+    /**
+     * Sets up the edit button action listener.
+     */
+    private void setupEditButtonAction() {
+        editEmployeeDetailsButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                setMode(true); // Switch to edit mode
+            }
+        });
+    }
+
+    /**
+     * Sets up the delete button action listener.
+     */
+    private void setupDeleteButtonAction() {
+        deleteEmpButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                confirmDeleteEmp();
+            }
+        });
+    }
+
+    /**
+     * Sets the frame's mode (view or edit).
+     * @param isEditMode true for edit mode, false for view mode
+     */
+    public void setMode(boolean isEditMode) {
+        setFieldsEditable(isEditMode);
+        saveEmpChangesButton.setVisible(isEditMode);
+        editEmployeeDetailsButton.setVisible(!isEditMode);
+        deleteEmpButton.setVisible(!isEditMode);
+    }
+
+    /**
+     * Populates the form fields with employee data.
+     * @param employee The employee whose data will be displayed
+     */
     public void populateFields(Employee employee) {
+        this.currentEmployee = employee;
         if (employee != null) {
             employeeIdTextField.setText(employee.getEmployeeId());
             firstNameTextField.setText(employee.getFirstName());
             lastNameTextField.setText(employee.getLastName());
-            // Format birthday if available
-            birthdayTextField.setText(employee.getBirthday() != null ? employee.getBirthday().format(DateTimeFormatter.ofPattern("MM/dd/yyyy")) : "");
+            birthdayTextField.setText(employee.getBirthday() != null ? 
+                employee.getBirthday().format(DateTimeFormatter.ofPattern("MM/dd/yyyy")) : "");
             jTextArea1.setText(employee.getAddress());
             phoneNumberTextField.setText(employee.getPhoneNumber());
             sssNumberTextField.setText(employee.getSssNumber());
@@ -31,19 +98,19 @@ public class EmployeeDetailsFrame extends javax.swing.JFrame {
             statusTextField.setText(employee.getStatus());
             positionTextField.setText(employee.getPosition());
             supervisorTextField.setText(employee.getSupervisor());
-            // Format salary/allowance fields with currency and commas
             basicSalaryTextField.setText(String.format("%,.2f", employee.getBasicSalary()));
             riceSubsidyField.setText(String.format("%,.2f", employee.getRiceSubsidy()));
             phoneAllowanceField.setText(String.format("%,.2f", employee.getPhoneAllowance()));
             clothingAllowanceField.setText(String.format("%,.2f", employee.getClothingAllowance()));
             hourlyRateTextField.setText(String.format("%,.2f", employee.getHourlyRate()));
         } else {
-            // Clear fields if employee data is null
             clearFields();
         }
     }
 
-    // Clears all the input/display fields
+    /**
+     * Clears all form fields.
+     */
     private void clearFields() {
         employeeIdTextField.setText("");
         firstNameTextField.setText("");
@@ -65,7 +132,153 @@ public class EmployeeDetailsFrame extends javax.swing.JFrame {
         hourlyRateTextField.setText("");
     }
 
+    /**
+     * Sets up the save button action listener.
+     */
+    private void setupSaveButtonAction() {
+        saveEmpChangesButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                saveEmployeeChanges();
+            }
+        });
+    }
+
+    /**
+     * Saves the edited employee data.
+     */
+    private void saveEmployeeChanges() {
+        try {
+            String employeeIdStr = employeeIdTextField.getText().trim();
+            if (employeeIdStr.isEmpty()) {
+                showError("Employee ID cannot be empty.");
+                return;
+            }
+            
+            try {
+                Long.parseLong(employeeIdStr);
+            } catch (NumberFormatException e) {
+                showError("Invalid Employee ID: Must be a numeric value.");
+                employeeIdTextField.requestFocus();
+                return;
+            }
+
+            Map<String, String> updatedData = new HashMap<>();
+            updatedData.put("Employee #", employeeIdStr);
+            updatedData.put("Last Name", lastNameTextField.getText().trim());
+            updatedData.put("First Name", firstNameTextField.getText().trim());
+            updatedData.put("Birthday", birthdayTextField.getText().trim());
+            updatedData.put("Address", jTextArea1.getText().trim());
+            updatedData.put("Phone Number", phoneNumberTextField.getText().trim());
+            updatedData.put("SSS #", sssNumberTextField.getText().trim());
+            updatedData.put("Philhealth #", philhealthNumberTextField.getText().trim());
+            updatedData.put("TIN #", tinNumberTextField.getText().trim());
+            updatedData.put("Pag-ibig #", pagibigNumberTextField.getText().trim());
+            updatedData.put("Status", statusTextField.getText().trim());
+            updatedData.put("Position", positionTextField.getText().trim());
+            updatedData.put("Immediate Supervisor", supervisorTextField.getText().trim());
+            updatedData.put("Basic Salary", basicSalaryTextField.getText().trim().replace(",", ""));
+            updatedData.put("Rice Subsidy", riceSubsidyField.getText().trim().replace(",", ""));
+            updatedData.put("Phone Allowance", phoneAllowanceField.getText().trim().replace(",", ""));
+            updatedData.put("Clothing Allowance", clothingAllowanceField.getText().trim().replace(",", ""));
+            updatedData.put("Gross Semi-monthly Rate", "0.0");
+            updatedData.put("Hourly Rate", hourlyRateTextField.getText().trim().replace(",", ""));
+
+            Employee updatedEmployee = new Employee(updatedData);
+            fileHandler.saveEmployee(updatedEmployee);
+
+            if (employeesPanel != null) {
+                employeesPanel.refreshEmployeeTable();
+            }
+            setMode(false); // Switch back to view mode after saving
+        } catch (Exception ex) {
+            showError("Error saving changes: " + ex.getMessage() + "\nPlease check input formats (e.g., numbers, dates).");
+            ex.printStackTrace();
+        }
+    }
+
+    /**
+     * Shows an error message dialog.
+     * @param message The error message to display
+     */
+    private void showError(String message) {
+        JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
+    }
+
+    /**
+     * Sets the editable state of all form fields.
+     * @param editable true to make fields editable, false to make them read-only
+     */
+    private void setFieldsEditable(boolean editable) {
+        employeeIdTextField.setEditable(false);
+        employeeIdTextField.setFocusable(editable);
+        firstNameTextField.setEditable(editable);
+        firstNameTextField.setFocusable(editable);
+        lastNameTextField.setEditable(editable);
+        lastNameTextField.setFocusable(editable);
+        birthdayTextField.setEditable(editable);
+        birthdayTextField.setFocusable(editable);
+        jTextArea1.setEditable(editable);
+        jTextArea1.setFocusable(editable);
+        phoneNumberTextField.setEditable(editable);
+        phoneNumberTextField.setFocusable(editable);
+        sssNumberTextField.setEditable(editable);
+        sssNumberTextField.setFocusable(editable);
+        philhealthNumberTextField.setEditable(editable);
+        philhealthNumberTextField.setFocusable(editable);
+        tinNumberTextField.setEditable(editable);
+        tinNumberTextField.setFocusable(editable);
+        pagibigNumberTextField.setFocusable(editable);
+        pagibigNumberTextField.setEditable(editable);
+        statusTextField.setEditable(editable);
+        statusTextField.setFocusable(editable); 
+        positionTextField.setEditable(editable);
+        positionTextField.setFocusable(editable);
+        supervisorTextField.setEditable(editable);
+        supervisorTextField.setFocusable(editable);
+        basicSalaryTextField.setEditable(editable);
+        basicSalaryTextField.setFocusable(editable);
+        riceSubsidyField.setEditable(editable);
+        riceSubsidyField.setFocusable(editable);
+        phoneAllowanceField.setEditable(editable);
+        phoneAllowanceField.setFocusable(editable);
+        clothingAllowanceField.setEditable(editable);
+        clothingAllowanceField.setFocusable(editable);
+        hourlyRateTextField.setEditable(editable);
+        hourlyRateTextField.setFocusable(editable);
+    }
+
+    /**
+     * Confirms and processes employee deletion.
+     */
+    private void confirmDeleteEmp() {
+        if (currentEmployee == null) {
+            showError("No employee selected to delete.");
+            return;
+        }
+
+        int choice = JOptionPane.showConfirmDialog(
+            this,
+            "Are you sure you want to delete employee " + currentEmployee.getEmployeeId() + "?",
+            "Confirm Delete",
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.WARNING_MESSAGE
+        );
+
+        if (choice == JOptionPane.YES_OPTION) {
+            boolean deleted = fileHandler.deleteEmployee(currentEmployee.getEmployeeId());
+            if (deleted) {
+                JOptionPane.showMessageDialog(this, "Employee deleted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                if (employeesPanel != null) {
+                    employeesPanel.refreshEmployeeTable();
+                }
+                dispose();
+            } else {
+                showError("Failed to delete employee.");
+            }
+        }
+    }
     
+   
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -113,6 +326,7 @@ public class EmployeeDetailsFrame extends javax.swing.JFrame {
         editEmployeeDetailsButton = new javax.swing.JButton();
         deleteEmpButton = new javax.swing.JButton();
         saveEmpChangesButton = new javax.swing.JButton();
+        jLabel20 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -121,45 +335,59 @@ public class EmployeeDetailsFrame extends javax.swing.JFrame {
         jPanel2.setBackground(new java.awt.Color(239, 239, 239));
 
         jLabel2.setBackground(new java.awt.Color(0, 0, 0));
+        jLabel2.setForeground(new java.awt.Color(0, 0, 0));
         jLabel2.setText("Employee ID:");
 
         jLabel3.setBackground(new java.awt.Color(0, 0, 0));
+        jLabel3.setForeground(new java.awt.Color(0, 0, 0));
         jLabel3.setText("First Name:");
 
         jLabel4.setBackground(new java.awt.Color(0, 0, 0));
+        jLabel4.setForeground(new java.awt.Color(0, 0, 0));
         jLabel4.setText("Last Name:");
 
         jLabel5.setBackground(new java.awt.Color(0, 0, 0));
-        jLabel5.setText("Birthday:");
+        jLabel5.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel5.setText("Birthday: ");
 
         jLabel6.setBackground(new java.awt.Color(0, 0, 0));
+        jLabel6.setForeground(new java.awt.Color(0, 0, 0));
         jLabel6.setText("Address:");
 
         jLabel7.setBackground(new java.awt.Color(0, 0, 0));
+        jLabel7.setForeground(new java.awt.Color(0, 0, 0));
         jLabel7.setText("Phone Number:");
 
         jLabel8.setBackground(new java.awt.Color(0, 0, 0));
+        jLabel8.setForeground(new java.awt.Color(0, 0, 0));
         jLabel8.setText("SSS Number:");
 
         jLabel9.setBackground(new java.awt.Color(0, 0, 0));
+        jLabel9.setForeground(new java.awt.Color(0, 0, 0));
         jLabel9.setText("PhilHealth Number:");
 
         jLabel10.setBackground(new java.awt.Color(0, 0, 0));
+        jLabel10.setForeground(new java.awt.Color(0, 0, 0));
         jLabel10.setText("Pag-IBIG Number:");
 
         jLabel11.setBackground(new java.awt.Color(0, 0, 0));
+        jLabel11.setForeground(new java.awt.Color(0, 0, 0));
         jLabel11.setText("Status:");
 
         jLabel12.setBackground(new java.awt.Color(0, 0, 0));
+        jLabel12.setForeground(new java.awt.Color(0, 0, 0));
         jLabel12.setText("Position:");
 
         jLabel13.setBackground(new java.awt.Color(0, 0, 0));
+        jLabel13.setForeground(new java.awt.Color(0, 0, 0));
         jLabel13.setText("Supervisor:");
 
         jLabel14.setBackground(new java.awt.Color(0, 0, 0));
+        jLabel14.setForeground(new java.awt.Color(0, 0, 0));
         jLabel14.setText("Basic Salary:");
 
         jLabel15.setBackground(new java.awt.Color(0, 0, 0));
+        jLabel15.setForeground(new java.awt.Color(0, 0, 0));
         jLabel15.setText("Hourly Rate:");
 
         employeeIdTextField.addActionListener(new java.awt.event.ActionListener() {
@@ -169,24 +397,30 @@ public class EmployeeDetailsFrame extends javax.swing.JFrame {
         });
 
         jLabel16.setBackground(new java.awt.Color(0, 0, 0));
+        jLabel16.setForeground(new java.awt.Color(0, 0, 0));
         jLabel16.setText("TIN Number:");
 
         jTextArea1.setColumns(20);
+        jTextArea1.setLineWrap(true);
         jTextArea1.setRows(5);
         jScrollPane1.setViewportView(jTextArea1);
 
         jLabel17.setBackground(new java.awt.Color(0, 0, 0));
+        jLabel17.setForeground(new java.awt.Color(0, 0, 0));
         jLabel17.setText("Rice Subsidy:");
 
         jLabel18.setBackground(new java.awt.Color(0, 0, 0));
+        jLabel18.setForeground(new java.awt.Color(0, 0, 0));
         jLabel18.setText("Phone Allowance:");
 
         jLabel19.setBackground(new java.awt.Color(0, 0, 0));
+        jLabel19.setForeground(new java.awt.Color(0, 0, 0));
         jLabel19.setText("Clothing Allowance:");
 
-        jLabel1.setText("EMPLOYEE PICTURE");
+        jLabel1.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/circle-user_18706369.png"))); // NOI18N
 
-        editEmployeeDetailsButton.setText("Edit");
+        editEmployeeDetailsButton.setText("Update");
 
         deleteEmpButton.setText("Delete");
         deleteEmpButton.addActionListener(new java.awt.event.ActionListener() {
@@ -203,78 +437,26 @@ public class EmployeeDetailsFrame extends javax.swing.JFrame {
             }
         });
 
+        jLabel20.setBackground(new java.awt.Color(0, 0, 0));
+        jLabel20.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
+        jLabel20.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel20.setText("mm/dd/yyyy");
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(428, 428, 428)
-                        .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(pagibigNumberTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(43, 43, 43)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(employeeIdTextField)
-                                    .addComponent(firstNameTextField)
-                                    .addComponent(lastNameTextField)
-                                    .addComponent(birthdayTextField)
-                                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(phoneNumberTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(jPanel2Layout.createSequentialGroup()
-                                    .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(statusTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGroup(jPanel2Layout.createSequentialGroup()
-                                    .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(positionTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGroup(jPanel2Layout.createSequentialGroup()
-                                    .addComponent(jLabel13, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(supervisorTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGroup(jPanel2Layout.createSequentialGroup()
-                                    .addComponent(jLabel14, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(basicSalaryTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                                .addComponent(jLabel17, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(riceSubsidyField, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                                .addComponent(jLabel18, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(phoneAllowanceField, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                                .addComponent(jLabel19, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(clothingAllowanceField, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                                .addComponent(jLabel15, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(hourlyRateTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(141, 141, 141)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel2Layout.createSequentialGroup()
+                        .addGap(142, 142, 142)
                         .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(133, 133, 133)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                                .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(pagibigNumberTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                                 .addComponent(jLabel16, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -286,8 +468,69 @@ public class EmployeeDetailsFrame extends javax.swing.JFrame {
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                                 .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(sssNumberTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                                .addComponent(sssNumberTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(43, 43, 43)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addGroup(jPanel2Layout.createSequentialGroup()
+                                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                            .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                                .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(jLabel20, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                            .addComponent(employeeIdTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(firstNameTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(lastNameTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(birthdayTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                    .addGroup(jPanel2Layout.createSequentialGroup()
+                                        .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(phoneNumberTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addGroup(jPanel2Layout.createSequentialGroup()
+                                            .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                            .addComponent(statusTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addGroup(jPanel2Layout.createSequentialGroup()
+                                            .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                            .addComponent(positionTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addGroup(jPanel2Layout.createSequentialGroup()
+                                            .addComponent(jLabel13, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                            .addComponent(supervisorTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addGroup(jPanel2Layout.createSequentialGroup()
+                                            .addComponent(jLabel14, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                            .addComponent(basicSalaryTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                                        .addComponent(jLabel17, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(riceSubsidyField, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                                        .addComponent(jLabel18, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(phoneAllowanceField, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                                        .addComponent(jLabel19, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(clothingAllowanceField, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                                        .addComponent(jLabel15, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(hourlyRateTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addGroup(jPanel2Layout.createSequentialGroup()
                                 .addComponent(saveEmpChangesButton)
                                 .addGap(14, 14, 14)
                                 .addComponent(editEmployeeDetailsButton)
@@ -298,14 +541,14 @@ public class EmployeeDetailsFrame extends javax.swing.JFrame {
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addContainerGap(18, Short.MAX_VALUE)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(editEmployeeDetailsButton)
                             .addComponent(deleteEmpButton)
                             .addComponent(saveEmpChangesButton))
-                        .addGap(18, 18, 18)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel8)
                             .addComponent(sssNumberTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -317,17 +560,14 @@ public class EmployeeDetailsFrame extends javax.swing.JFrame {
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel16)
                             .addComponent(tinNumberTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(55, 55, 55)
-                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(pagibigNumberTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel10))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                            .addComponent(jLabel10)))
+                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(statusTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel11))
@@ -374,7 +614,8 @@ public class EmployeeDetailsFrame extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel5)
-                            .addComponent(birthdayTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(birthdayTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel20))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel6)
@@ -416,13 +657,13 @@ public class EmployeeDetailsFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_employeeIdTextFieldActionPerformed
 
     private void saveEmpChangesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveEmpChangesButtonActionPerformed
-        // TODO add your handling code here:
+        saveEmployeeChanges();
         JOptionPane.showMessageDialog(this, "Changes Saved.", "Information", JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_saveEmpChangesButtonActionPerformed
 
     private void deleteEmpButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteEmpButtonActionPerformed
-        // TODO add your handling code here:
         confirmDeleteEmp();
+
     }//GEN-LAST:event_deleteEmpButtonActionPerformed
 
     public static void main(String args[]) {
@@ -457,24 +698,6 @@ public class EmployeeDetailsFrame extends javax.swing.JFrame {
         });
     }
     
-    private void confirmDeleteEmp() {
-        int choice = JOptionPane.showConfirmDialog(
-        this,
-        "Are you sure you want to delete this employee?",
-        "Confirm Delete",
-        JOptionPane.YES_NO_OPTION,
-        JOptionPane.WARNING_MESSAGE
-    );
-
-    if (choice == JOptionPane.YES_OPTION) {
-        // TODO: Add your delete logic here
-        System.out.println("Employee deleted.");
-    } else {
-        // Cancelled
-        System.out.println("Delete cancelled.");
-    }
-    }
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField basicSalaryTextField;
     private javax.swing.JTextField birthdayTextField;
@@ -496,6 +719,7 @@ public class EmployeeDetailsFrame extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel20;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;

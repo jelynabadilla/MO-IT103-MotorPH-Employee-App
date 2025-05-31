@@ -12,49 +12,59 @@ import java.util.Map;
 import java.awt.Frame;
 import motorph.gui.MainApplication;
 
-
-
+/**
+ * A panel for displaying and managing employee records.
+ * Provides functionality to view, add, and refresh employee data.
+ */
 public class EmployeesPanel extends javax.swing.JPanel {
 
     private FileHandler fileHandler;
-    private JDialog addEmployeeDialog; 
-    private EmployeeDetailsFrame detailsFrame; 
-    private JPanel contentPanel; 
-    private CardLayout cardLayout; 
-    private MainApplication mainApp; 
-    
-    // Constructor
+    private JDialog addEmployeeDialog;
+    private EmployeeDetailsFrame detailsFrame;
+    private JPanel contentPanel;
+    private CardLayout cardLayout;
+    private MainApplication mainApp;
+
+    /**
+     * Constructs a new EmployeesPanel.
+     */
     public EmployeesPanel(JPanel contentPanel, CardLayout cardLayout, MainApplication mainApp) {
         this.contentPanel = contentPanel;
         this.cardLayout = cardLayout;
         this.mainApp = mainApp;
 
-
         initComponents();
         fileHandler = new FileHandler();
-        displayEmployees(); 
-        detailsFrame = new EmployeeDetailsFrame(); 
-        setupTableSelectionListener(); 
-        setupAddEmployeeButton(); 
-        setupViewEmployeeButton(); 
-        setupRefreshButton(); 
+        detailsFrame = new EmployeeDetailsFrame(this); 
+        setupTableSelectionListener();
+        displayEmployees();
     }
 
-    // Loads employee data and displays it in the table
+    /**
+     * Loads employee data and displays it in the table.
+     */
     private void displayEmployees() {
         List<Employee> employees = fileHandler.readEmployees();
-        DefaultTableModel model = (DefaultTableModel) employeesPanelTable.getModel();
-        model.setRowCount(0); // Clear existing table data
 
-        // Define table column names
-        String[] columnNames = {"Employee Number", "Last Name", "First Name", "SSS Number", "PhilHealth Number", "TIN", "Pag-IBIG Number"};
-        model.setColumnIdentifiers(columnNames); 
+        // Create a non-editable table model
+        DefaultTableModel model = new DefaultTableModel() {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
 
-        // Add each employee's data to the table
+        employeesPanelTable.setModel(model);
+        String[] columnNames = {
+            "Employee Number", "Last Name", "First Name", 
+            "SSS Number", "PhilHealth Number", "TIN", "Pag-IBIG Number"
+        };
+        model.setColumnIdentifiers(columnNames);
+        model.setRowCount(0);
+
+        // Populate table with employee data
         for (Employee employee : employees) {
-            Map<String, String> employeeData = employee.toMap(); // Get employee data as a map
-
-            // Create a row with data for the table
+            Map<String, String> employeeData = employee.toMap();
             Object[] row = {
                 employeeData.get("Employee #"),
                 employeeData.get("Last Name"),
@@ -64,84 +74,57 @@ public class EmployeesPanel extends javax.swing.JPanel {
                 employeeData.get("TIN #"),
                 employeeData.get("Pag-ibig #")
             };
-
-            // Ensure all row data elements are strings for display
+            
+            // Ensure no null values in the row
             for (int i = 0; i < row.length; i++) {
-                if (row[i] == null) {
-                    row[i] = ""; // Use empty string for null values
-                } else {
-                    row[i] = String.valueOf(row[i]); // Convert to string
-                }
+                row[i] = row[i] == null ? "" : String.valueOf(row[i]);
             }
-            model.addRow(row); // Add the row to the table model
+            model.addRow(row);
         }
-        // Disable the view button initially until a row is selected
+
         viewEmployeeDetailsButton.setEnabled(false);
     }
 
-    // Sets up a listener to enable/disable the view button based on row selection
+    /**
+     * Sets up table selection listener to enable/disable view button.
+     */
     private void setupTableSelectionListener() {
         employeesPanelTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
-                // Enable button if a row is selected, disable otherwise
-                viewEmployeeDetailsButton.setEnabled(!employeesPanelTable.getSelectionModel().isSelectionEmpty());
+                if (!e.getValueIsAdjusting()) {
+                    boolean rowSelected = !employeesPanelTable.getSelectionModel().isSelectionEmpty();
+                    viewEmployeeDetailsButton.setEnabled(rowSelected);
+                }
             }
         });
     }
 
-    // Opens the EmployeeDetailsFrame for the selected employee
+    /**
+     * Opens the EmployeeDetailsFrame for the selected employee in view mode.
+     */
     private void viewEmployeeDetails() {
-        int selectedRow = employeesPanelTable.getSelectedRow(); // Get index of selected row
-        if (selectedRow != -1) { // Check if a row is selected
-            // Get Employee ID from the selected row (assuming it's in the first column)
+        int selectedRow = employeesPanelTable.getSelectedRow();
+        if (selectedRow != -1) {
             String employeeId = (String) employeesPanelTable.getValueAt(selectedRow, 0);
-            // Find the full Employee object using the ID
             Employee employee = fileHandler.getEmployeeById(employeeId);
 
             if (employee != null) {
-                detailsFrame.populateFields(employee); // Populate details frame
-                detailsFrame.setVisible(true); // Show the details frame
+                detailsFrame.populateFields(employee);
+                detailsFrame.setMode(false);
+                detailsFrame.setVisible(true);
             } else {
-                // Show error if employee data is not found
-                JOptionPane.showMessageDialog(this, "Employee not found.", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, 
+                    "Employee not found!", "Error", JOptionPane.ERROR_MESSAGE);
             }
-        } else {
-            // Show message if no row is selected
-            JOptionPane.showMessageDialog(this, "Please select an employee to view details.", "Information", JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
-    // Refreshes the employee table data
+    /**
+     * Refreshes the employee table data.
+     */
     public void refreshEmployeeTable() {
-        displayEmployees(); // Reload and display data
-    }
-
-    // Sets up the action listener for the add employee button
-    private void setupAddEmployeeButton() {
-        addEmployeeButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                addEmployeeButtonActionPerformed(evt);
-            }
-        });
-    }
-
-     // Sets up the action listener for the view employee button
-    private void setupViewEmployeeButton() {
-        viewEmployeeDetailsButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                viewEmployeeDetailsButtonActionPerformed(evt);
-            }
-        });
-    }
-
-     // Sets up the action listener for the refresh button
-    private void setupRefreshButton() {
-        refreshEmployeeTable.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                refreshEmployeeTableActionPerformed(evt);
-            }
-        });
+        displayEmployees();
     }
     
     @SuppressWarnings("unchecked")
@@ -178,7 +161,7 @@ public class EmployeesPanel extends javax.swing.JPanel {
         employeesTitle.setForeground(new java.awt.Color(24, 59, 78));
         employeesTitle.setText("Employees");
 
-        addEmployeeButton.setText("Add Employee");
+        addEmployeeButton.setText("New Employee");
         addEmployeeButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 addEmployeeButtonActionPerformed(evt);
@@ -255,14 +238,19 @@ public class EmployeesPanel extends javax.swing.JPanel {
 
     private void addEmployeeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addEmployeeButtonActionPerformed
         // TODO add your handling code here:
+        if (addEmployeeDialog != null && addEmployeeDialog.isVisible()) {
+            addEmployeeDialog.toFront(); // Bring existing dialog to front
+            return;
+        }
+
         Frame parentFrame = null;
         java.awt.Window window = SwingUtilities.getWindowAncestor(this);
         if (window instanceof Frame) {
             parentFrame = (Frame) window;
         }
 
-        // Create and show the dialog
         addEmployeeDialog = new EmployeeDialog(parentFrame, true, this);
+        addEmployeeDialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         addEmployeeDialog.setVisible(true);
     }//GEN-LAST:event_addEmployeeButtonActionPerformed
 
@@ -273,6 +261,8 @@ public class EmployeesPanel extends javax.swing.JPanel {
 
     private void refreshEmployeeTableActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshEmployeeTableActionPerformed
         // TODO add your handling code here:
+        refreshEmployeeTable();
+
     }//GEN-LAST:event_refreshEmployeeTableActionPerformed
 
 

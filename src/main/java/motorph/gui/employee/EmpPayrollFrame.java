@@ -267,15 +267,17 @@ public class EmpPayrollFrame extends JFrame {
         payrollTitle.setForeground(new java.awt.Color(24, 59, 78));
         payrollTitle.setText("Payroll");
 
+        jLabel3.setForeground(new java.awt.Color(0, 0, 0));
         jLabel3.setText("Month");
 
-        calculateButton.setText("Calculate");
+        calculateButton.setText("Compute");
         calculateButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 calculateButtonActionPerformed(evt);
             }
         });
 
+        jLabel4.setForeground(new java.awt.Color(0, 0, 0));
         jLabel4.setText("Week");
 
         monthComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
@@ -311,8 +313,10 @@ public class EmpPayrollFrame extends JFrame {
         resultTextArea.setRows(5);
         jScrollPane1.setViewportView(resultTextArea);
 
+        jLabel1.setForeground(new java.awt.Color(0, 0, 0));
         jLabel1.setText("Payroll Report");
 
+        jLabel5.setForeground(new java.awt.Color(0, 0, 0));
         jLabel5.setText("Employee Details:");
 
         employeeDetailsTextArea.setEditable(false);
