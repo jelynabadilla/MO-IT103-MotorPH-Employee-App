@@ -34,19 +34,19 @@
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace min="-2" pref="50" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
+                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
                           <Component id="jScrollPane1" min="-2" pref="737" max="-2" attributes="0"/>
                           <Group type="102" attributes="0">
                               <EmptySpace min="-2" pref="11" max="-2" attributes="0"/>
                               <Component id="jLabelEmployeeFilter" min="-2" pref="85" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="employeeIdComboBox" min="-2" pref="86" max="-2" attributes="0"/>
-                              <EmptySpace min="-2" pref="200" max="-2" attributes="0"/>
+                              <EmptySpace max="32767" attributes="0"/>
                               <Component id="monthComboBox" min="-2" pref="127" max="-2" attributes="0"/>
                               <EmptySpace type="separate" max="-2" attributes="0"/>
                               <Component id="weekComboBox" min="-2" pref="127" max="-2" attributes="0"/>
                               <EmptySpace type="separate" max="-2" attributes="0"/>
-                              <Component id="filterButton" min="-2" max="-2" attributes="0"/>
+                              <Component id="jButton1" min="-2" pref="63" max="-2" attributes="0"/>
                           </Group>
                       </Group>
                   </Group>
@@ -63,11 +63,11 @@
               <Component id="attendanceTitle" min="-2" pref="53" max="-2" attributes="0"/>
               <EmptySpace type="unrelated" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="filterButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="monthComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="weekComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="employeeIdComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabelEmployeeFilter" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jButton1" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="32767" attributes="0"/>
               <Component id="jScrollPane1" min="-2" pref="432" max="-2" attributes="0"/>
@@ -131,14 +131,6 @@
         </Component>
       </SubComponents>
     </Container>
-    <Component class="javax.swing.JToggleButton" name="filterButton">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="OK"/>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="filterButtonActionPerformed"/>
-      </Events>
-    </Component>
     <Component class="javax.swing.JComboBox" name="weekComboBox">
       <Properties>
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
@@ -191,6 +183,14 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="Label1"/>
       </Properties>
+    </Component>
+    <Component class="javax.swing.JButton" name="jButton1">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Filter"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton1ActionPerformed"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>
