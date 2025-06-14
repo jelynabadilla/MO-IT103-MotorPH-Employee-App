@@ -311,11 +311,11 @@ public class FileHandler {
     public boolean updateEmployee(Employee updatedEmployee) {
         try {
             // Read all employees
-            List<Employee> employees = readEmployees(); // Corrected: was getAllEmployees()
+            List<Employee> employees = readEmployees(); 
 
             // Find and update the specific employee
             for (int i = 0; i < employees.size(); i++) {
-                if (employees.get(i).getEmployeeId().equals(updatedEmployee.getEmployeeId())) { // Corrected: was getEmployeeNumber()
+                if (employees.get(i).getEmployeeId().equals(updatedEmployee.getEmployeeId())) { 
                     employees.set(i, updatedEmployee);
                     break;
                 }
