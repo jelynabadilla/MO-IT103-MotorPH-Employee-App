@@ -21,11 +21,9 @@ import motorph.gui.MainApplication;
 public class AttendancePanel extends javax.swing.JPanel {
     private FileHandler fileHandler; 
     private DefaultTableModel tableModel; 
-    private MainApplication mainApp; 
 
 
     public AttendancePanel(MainApplication mainApp) {
-        this.mainApp = mainApp;
         initComponents(); 
         fileHandler = new FileHandler(); 
         initializeTable(); 

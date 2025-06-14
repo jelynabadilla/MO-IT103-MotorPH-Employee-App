@@ -2,7 +2,6 @@ package motorph.gui;
 
 import java.awt.CardLayout;
 import java.awt.Container;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import motorph.gui.admin.DashboardPanel;
 import motorph.gui.admin.AttendancePanel;

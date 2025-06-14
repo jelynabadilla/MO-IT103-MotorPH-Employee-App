@@ -21,17 +21,11 @@ public class EmployeesPanel extends javax.swing.JPanel {
     private FileHandler fileHandler;
     private JDialog addEmployeeDialog;
     private EmployeeDetailsFrame detailsFrame;
-    private JPanel contentPanel;
-    private CardLayout cardLayout;
-    private MainApplication mainApp;
 
     /**
      * Constructs a new EmployeesPanel.
      */
     public EmployeesPanel(JPanel contentPanel, CardLayout cardLayout, MainApplication mainApp) {
-        this.contentPanel = contentPanel;
-        this.cardLayout = cardLayout;
-        this.mainApp = mainApp;
 
         initComponents();
         fileHandler = new FileHandler();

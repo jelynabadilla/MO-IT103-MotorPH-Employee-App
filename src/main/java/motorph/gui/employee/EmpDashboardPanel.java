@@ -14,13 +14,11 @@ import java.util.Map;
 public class EmpDashboardPanel extends javax.swing.JPanel {
 
     private FileHandler fileHandler;
-    private MainApplication mainApp; 
     private int loggedInEmployeeNumber; 
     private DefaultTableModel attendanceTableModel; 
 
     // Constructor
     public EmpDashboardPanel(MainApplication mainApp) {
-        this.mainApp = mainApp;
         fileHandler = new FileHandler();
 
         // Get the logged in employee number from the main application frame
