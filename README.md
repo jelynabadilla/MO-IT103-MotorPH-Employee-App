@@ -25,7 +25,7 @@
 
 ### Running the Application
 
-* Use your IDE (like NetBeans) to run the `MotorPH.java` file.
+* Use your IDE (like NetBeans) to run the `AppStart.java` file.
 
 
 ### Data Storage
