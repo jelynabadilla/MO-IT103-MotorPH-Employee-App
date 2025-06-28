@@ -26,7 +26,7 @@
 ### Running the Application
 
 * Use your IDE (like NetBeans) to run the `AppStart.java` file.
-
+* Input the login credentials from the `users.csv` file located in the data folder.
 
 ### Data Storage
 
@@ -34,12 +34,12 @@ The application uses CSV files to store data:
 
 * `data/employees.csv`: Stores employee records.
 * `data/attendance.csv`: Stores attendance records.
-
+* `data/users.csv`: Stores users' login credentials.
 
 
 ##  Notes
 
-* Ensure that the data files exist in the `data` directory. The application will create them if they don't exist.
+* Ensure that the employees and attendance data files exist in the `data` directory. The application will create them if they don't exist.
 
 
 ## Contributors
